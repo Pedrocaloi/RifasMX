@@ -7,6 +7,7 @@ import {
  setRifaDetail,
  setNumbersToCart,
  delNumbersToCart,
+ clearCart,
 } from '../slices/rifaSlice';
 
 const svHost = import.meta.env.VITE_SV_HOST;
@@ -77,4 +78,33 @@ export const removeNumbersToCart = (id, rifaNumber) => async (dispatch) => {
  );
 
  await dispatch(delNumbersToCart(rifasFiltered));
+};
+
+export const buyRifas = (cartItems) => async (dispatch) => {
+ try {
+  const userData = JSON.parse(sessionStorage.getItem('userData'));
+  const token = userData.token;
+
+  for (const cartItem of cartItems) {
+   const { rifaId, number, userId } = cartItem;
+
+   await axios.put(
+    `${svHost}/rifas/buyRifa`,
+    { rifaId, number, userId },
+    {
+     headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+     },
+    },
+   );
+  }
+
+  dispatch(clearCart());
+
+  // dispatch(setRifaDetail(/* Pass the appropriate data here */));
+ } catch (err) {
+  console.log(err.message);
+ }
 };

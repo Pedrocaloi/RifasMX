@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Button, Grid, useMediaQuery } from '@mui/material';
 
@@ -12,7 +13,9 @@ import { addNumbersToCart } from '../../store/state/actions/rifas';
 
 ///////////////////////////////
 const RifaDetailCard = ({ rifaDetail }) => {
+ const navigate = useNavigate();
  const dispatch = useDispatch();
+ console.log(rifaDetail);
 
  /* Parte del Responsive del texto */
 
@@ -57,6 +60,11 @@ const RifaDetailCard = ({ rifaDetail }) => {
   );
   setSelectedNumbers([]);
  };
+
+ // Ordenar los números en función de su valor
+ const sortedNumeros = [...rifaDetail.numeros].sort(
+  (a, b) => a.number - b.number,
+ );
 
  return (
   <>
@@ -170,7 +178,7 @@ const RifaDetailCard = ({ rifaDetail }) => {
         container
         justifyContent='center'
         spacing={2}>
-        {rifaDetail.numbers.map((element) => (
+        {sortedNumeros.map((element) => (
          <Grid
           item
           key={element.number}>
@@ -218,6 +226,7 @@ const RifaDetailCard = ({ rifaDetail }) => {
         onClick={() => {
          // Realizar acción con los números seleccionados
          addToCart(selectedNumbers);
+         navigate('/cart');
         }}>
         COMPRAR NUMEROS
        </Button>

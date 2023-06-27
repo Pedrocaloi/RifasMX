@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Rifa } = require('../db');
+const { Rifa, Numero, User } = require('../db');
 const { spawn } = require('child_process');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
@@ -25,23 +25,30 @@ const createRifa = async (req, res) => {
   req.body;
 
  try {
+  const rifa = await Rifa.create(
+   {
+    product,
+    imgProduct,
+    description,
+    numbersPrice,
+    numeros: [], // Incluir un array vacío para la relación 'numeros'
+   },
+   {
+    include: 'numeros', // Incluir la relación 'numeros' al crear la rifa
+   },
+  );
+
   const numbers = [];
 
   for (let i = 1; i <= totalNumbers; i++) {
    numbers.push({
     number: i,
     available: true,
-    userId: null,
+    RifaId: rifa.id,
    });
   }
 
-  const rifa = await Rifa.create({
-   product,
-   imgProduct,
-   description,
-   numbersPrice,
-   numbers,
-  });
+  await Numero.bulkCreate(numbers);
 
   res.json(rifa);
  } catch (err) {
@@ -51,7 +58,7 @@ const createRifa = async (req, res) => {
 
 const checkRifas = async (req, res) => {
  try {
-  const rifas = await Rifa.findAll();
+  const rifas = await Rifa.findAll({ include: 'numeros' });
   res.json(rifas);
  } catch (error) {
   res.status(500).json({ 'Error en el servidor: ': error.message });
@@ -61,24 +68,26 @@ const checkRifas = async (req, res) => {
 const buyRifa = async (req, res) => {
  try {
   const { rifaId, number, userId } = req.body;
-  const rifa = await Rifa.findByPk(rifaId);
+  const rifa = await Rifa.findByPk(rifaId, {
+   include: { model: Numero, as: 'numeros', include: User },
+  });
 
-  console.log('antes', rifa.numbers[0]);
-
-  const selectedNumber = rifa.numbers.find((n) => n.number === number);
+  const selectedNumber = rifa.numeros.find((n) => n.number === number);
 
   if (selectedNumber && selectedNumber.available) {
    selectedNumber.available = false;
    selectedNumber.userId = userId;
 
    try {
-    await rifa.save();
-    console.log('toy pit');
+    await selectedNumber.save(); // Guardar los cambios en la instancia de Número
    } catch (err) {
     console.log(err.message);
    }
 
-   console.log('despues', rifa.numbers);
+   // Asociar el número comprado con el usuario correspondiente
+   const user = await User.findByPk(userId);
+   await selectedNumber.setUser(user);
+
    res.send({ rifa, userId }); // El número se compró exitosamente
   } else {
    res
@@ -91,10 +100,10 @@ const buyRifa = async (req, res) => {
 };
 
 const rifaDetail = async (req, res) => {
- console.log('entree');
  let { id } = req.params;
  try {
-  const rifa = await Rifa.findByPk(id);
+  const rifa = await Rifa.findByPk(id, { include: 'numeros' });
+  console.log();
   res.status(200).json(rifa);
  } catch (error) {
   res.status(500).json({ 'Error en el servidor: ': error.message });

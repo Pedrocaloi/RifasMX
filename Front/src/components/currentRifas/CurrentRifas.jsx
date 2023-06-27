@@ -14,6 +14,7 @@ const CurrentRifas = () => {
  const dispatch = useDispatch();
 
  const { allRifas } = useSelector((state) => state.rifas);
+ console.log(allRifas);
 
  useEffect(() => {
   dispatch(getRifas());

@@ -61,9 +61,15 @@ sequelize.models = Object.fromEntries(capsEntries);
 
 // Importamos los models
 
-const { Rifa, User } = sequelize.models;
+const { Rifa, User, Numero } = sequelize.models;
 
 // Insertar las Relaciones (de momento no hay)
+
+Rifa.hasMany(Numero, { foreignKey: 'RifaId', as: 'numeros' });
+Numero.belongsTo(Rifa, { foreignKey: 'RifaId' });
+
+User.hasMany(Numero, { foreignKey: 'UserId', as: 'numeros' });
+Numero.belongsTo(User, { foreignKey: 'UserId' });
 
 module.exports = {
  ...sequelize.models,

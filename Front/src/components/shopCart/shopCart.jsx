@@ -12,18 +12,35 @@ import {
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { useNavigate } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { removeNumbersToCart } from '../../store/state/actions/rifas';
+import { removeNumbersToCart, buyRifas } from '../../store/state/actions/rifas';
 
 import './shopCart.css'; // Importa el archivo CSS para las transiciones
 
 const ShopCart = () => {
  const dispatch = useDispatch();
+ const navigate = useNavigate();
  const cart = useSelector((state) => state.rifas.cart);
 
  const handleDeleteCart = (id, rifaNumber) => {
   dispatch(removeNumbersToCart(id, rifaNumber));
+ };
+
+ const handleBuyClick = () => {
+  // Filtrar y transformar el carrito según los campos necesarios
+  const filteredCart = cart.map((item) => {
+   return {
+    rifaId: item.rifaId,
+    number: item.number,
+    userId: item.userId,
+   };
+  });
+  console.log('filtrado', filteredCart);
+  // Llamar a la acción buyRifas con el carrito filtrado
+  dispatch(buyRifas(filteredCart));
+  navigate('');
  };
 
  return (
@@ -128,6 +145,7 @@ const ShopCart = () => {
       }}
       onClick={() => {
        // Realizar accion de compra
+       handleBuyClick();
       }}>
       COMPRAR NUMEROS
      </Button>

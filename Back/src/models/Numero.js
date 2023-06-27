@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
- sequelize.define(
-  'rifa',
+ const Numero = sequelize.define(
+  'numero',
   {
    id: {
     type: DataTypes.UUID,
@@ -10,25 +10,23 @@ module.exports = (sequelize) => {
     allowNull: false,
     primaryKey: true,
    },
-   product: {
+   number: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    type: DataTypes.STRING,
    },
-   imgProduct: {
-    type: DataTypes.TEXT,
+   available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+   },
+   userId: {
+    type: DataTypes.UUID,
     allowNull: true,
-   },
-   description: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-   },
-   numbersPrice: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
    },
   },
   {
    timestamps: false,
   },
  );
+
+ return Numero;
 };

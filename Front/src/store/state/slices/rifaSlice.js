@@ -20,10 +20,18 @@ export const rifaSlice = createSlice({
   delNumbersToCart: (state, action) => {
    state.cart = action.payload;
   },
+  clearCart: (state) => {
+   state.cart = [];
+  },
  },
 });
 
-export const { setRifas, setRifaDetail, setNumbersToCart, delNumbersToCart } =
- rifaSlice.actions;
+export const {
+ setRifas,
+ setRifaDetail,
+ setNumbersToCart,
+ delNumbersToCart,
+ clearCart,
+} = rifaSlice.actions;
 
 export default rifaSlice.reducer;
