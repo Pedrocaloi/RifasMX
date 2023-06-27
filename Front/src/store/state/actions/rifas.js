@@ -30,25 +30,6 @@ export const getRifaDetail = (id) => async (dispatch) => {
  }
 };
 
-// export const addNumbersToCart =
-//  (selectedNumbers, rifaId, numbersPrice, productName) => async (dispatch) => {
-//   // console.log('dice undefinde ', selectedNumbers);
-//   let { id } = JSON.parse(sessionStorage.getItem('userData')).user;
-
-//   const numbersObj = [];
-//   selectedNumbers.forEach((number) => {
-//    numbersObj.push({
-//     productName: productName,
-//     rifaId: rifaId,
-//     number: number,
-//     numbersPrice: numbersPrice,
-//     userId: id,
-//    });
-//   });
-//   await dispatch(setNumbersToCart(numbersObj));
-//   // console.log(numbersObj);
-//  };
-
 export const addNumbersToCart =
  (selectedNumbers, rifaId, numbersPrice, productName, imgProduct) =>
  async (dispatch) => {
@@ -56,7 +37,7 @@ export const addNumbersToCart =
   let rifas = JSON.parse(localStorage.getItem('persist:root'));
   let { cart } = JSON.parse(rifas.rifas);
 
-  console.log('carrotp', cart);
+  // console.log('carrotp', cart);
 
   const numbersToAdd = [];
   selectedNumbers.forEach((number) => {
@@ -70,7 +51,7 @@ export const addNumbersToCart =
     numbersToAdd.push({
      productName,
      rifaId,
-     number,
+     number: number.number,
      numbersPrice,
      imgProduct,
      userId: id,
@@ -79,15 +60,17 @@ export const addNumbersToCart =
   });
 
   if (numbersToAdd.length > 0) {
+   //  console.log(numbersToAdd);
    await dispatch(setNumbersToCart(numbersToAdd));
   }
  };
 
 export const removeNumbersToCart = (id, rifaNumber) => async (dispatch) => {
- console.log('esto me llega: ', { id, rifaNumber });
+ //  console.log('esto me llega: ', { id, rifaNumber });
  let rifas = JSON.parse(localStorage.getItem('persist:root'));
  let rifaParse = JSON.parse(rifas.rifas);
  let cart = rifaParse.cart;
+ //  console.log(cart);
 
  const rifasFiltered = cart.filter(
   (rifa) => rifa.rifaId !== id || rifa.number !== rifaNumber,

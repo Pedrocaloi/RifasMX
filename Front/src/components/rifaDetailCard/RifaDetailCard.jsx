@@ -1,11 +1,9 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Button, Grid, useMediaQuery } from '@mui/material';
 
 //-------------------- Actions --------------------------
-import { getRifaDetail } from '../../store/state/actions/rifas';
 import { addNumbersToCart } from '../../store/state/actions/rifas';
 
 //-------------------- Components --------------------------
@@ -13,22 +11,8 @@ import { addNumbersToCart } from '../../store/state/actions/rifas';
 // implementar precio
 
 ///////////////////////////////
-const RifaDetailCard = () => {
+const RifaDetailCard = ({ rifaDetail }) => {
  const dispatch = useDispatch();
- const { rifaDetail } = useSelector((state) => state.rifas);
- const extractNumbers = (rifaDetail) => {
-  if (!rifaDetail || !rifaDetail.numbers) {
-   return []; // Retorna un array vacío si rifaDetail es null, undefined o no tiene la propiedad numbers
-  }
-
-  return Object.entries(rifaDetail.numbers).map(([number]) => number);
- };
- const numbersArray = extractNumbers(rifaDetail);
- const { id } = useParams();
-
- useEffect(() => {
-  dispatch(getRifaDetail(id));
- }, []);
 
  /* Parte del Responsive del texto */
 
@@ -48,6 +32,7 @@ const RifaDetailCard = () => {
 
  /* Compra Rifas action */
  const [selectedNumbers, setSelectedNumbers] = useState([]);
+ //  console.log(selectedNumbers);
 
  const handleNumberClick = (number) => {
   if (selectedNumbers.includes(number)) {
@@ -75,7 +60,7 @@ const RifaDetailCard = () => {
 
  return (
   <>
-   {rifaDetail && (
+   {Object.keys(rifaDetail).length > 0 ? (
     /// TIENE QUE IR CON RESPONSIVE
     <Box
      margin='2rem'
@@ -185,34 +170,31 @@ const RifaDetailCard = () => {
         container
         justifyContent='center'
         spacing={2}>
-        {rifaDetail &&
-         numbersArray.map((number, index) => (
-          <Grid
-           item
-           key={number}>
-           <Button
-            fullWidth
-            sx={{
-             color: selectedNumbers.includes(number) ? '#c4bdbd' : '#333',
-             backgroundColor: selectedNumbers.includes(number)
-              ? '#b60d0dd2'
-              : rifaDetail.numbers[number]?.available
-              ? '#b31d1d5c'
-              : '#3336',
-             borderRadius: '50%',
-             fontSize: '1.5rem',
-             width: '4rem',
-             height: '4rem',
-            }}
-            variant={
-             rifaDetail.numbers[number]?.available ? 'outlined' : 'disabled'
-            }
-            onClick={() => handleNumberClick(number)}
-            disabled={!rifaDetail.numbers[number]?.available}>
-            {number}
-           </Button>
-          </Grid>
-         ))}
+        {rifaDetail.numbers.map((element) => (
+         <Grid
+          item
+          key={element.number}>
+          <Button
+           fullWidth
+           sx={{
+            color: selectedNumbers.includes(element) ? '#c4bdbd' : '#333',
+            backgroundColor: selectedNumbers.includes(element)
+             ? '#b60d0dd2'
+             : element.available
+             ? '#b31d1d5c'
+             : '#3336',
+            borderRadius: '50%',
+            fontSize: '1.5rem',
+            width: '4rem',
+            height: '4rem',
+           }}
+           variant={!element.available ? 'outlined' : 'text'}
+           onClick={() => handleNumberClick(element)}
+           disabled={!element.available}>
+           {element.number}
+          </Button>
+         </Grid>
+        ))}
        </Grid>
       </Box>
       <Box
@@ -242,6 +224,8 @@ const RifaDetailCard = () => {
       </Box>
      </Box>
     </Box>
+   ) : (
+    <Typography>Rifa no encontrada</Typography>
    )}
   </>
  );

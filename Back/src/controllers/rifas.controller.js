@@ -25,13 +25,14 @@ const createRifa = async (req, res) => {
   req.body;
 
  try {
-  const numbers = {};
+  const numbers = [];
 
   for (let i = 1; i <= totalNumbers; i++) {
-   numbers[i] = {
+   numbers.push({
+    number: i,
     available: true,
     userId: null,
-   };
+   });
   }
 
   const rifa = await Rifa.create({
@@ -42,7 +43,7 @@ const createRifa = async (req, res) => {
    numbers,
   });
 
-  res.json(rifa); // sacar esto despues
+  res.json(rifa);
  } catch (err) {
   console.log(err.message);
  }
@@ -58,24 +59,25 @@ const checkRifas = async (req, res) => {
 };
 
 const buyRifa = async (req, res) => {
- // asi deberia recorrer el objeto de objetos para la compra
- //  const userId = 'ID_DEL_USUARIO_QUE_COMPRO';
- //  numbers['5'].userId = userId;
-
  try {
   const { rifaId, number, userId } = req.body;
   const rifa = await Rifa.findByPk(rifaId);
-  console.log('antes', rifa.numbers[1]);
-  if (rifa.numbers[number] && rifa.numbers[number].available) {
-   rifa.numbers[number].available = false;
-   rifa.numbers[number].userId = userId;
-   rifa.numbersPrice = 20;
+
+  console.log('antes', rifa.numbers[0]);
+
+  const selectedNumber = rifa.numbers.find((n) => n.number === number);
+
+  if (selectedNumber && selectedNumber.available) {
+   selectedNumber.available = false;
+   selectedNumber.userId = userId;
+
    try {
     await rifa.save();
     console.log('toy pit');
    } catch (err) {
     console.log(err.message);
    }
+
    console.log('despues', rifa.numbers);
    res.send({ rifa, userId }); // El número se compró exitosamente
   } else {

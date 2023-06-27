@@ -24,7 +24,7 @@ router.post('/createRifa', createRifa);
 
 // router.post('/deleteRifa', isUserLoggedInAdmin, deleteRifa);
 
-router.patch('/buyRifa', isUserLoggedIn, buyRifa);
+router.put('/buyRifa', isUserLoggedIn, buyRifa);
 
 ///////////////////////////////////////////////
 
