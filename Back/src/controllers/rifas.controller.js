@@ -23,6 +23,7 @@ const {
 const createRifa = async (req, res) => {
  const { product, imgProduct, description, numbersPrice, totalNumbers } =
   req.body;
+
  try {
   const numbers = {};
 
