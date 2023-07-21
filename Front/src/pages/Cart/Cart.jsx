@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 
 //-------------------- Components --------------------------
-import NavBar from '../../components/navbar/navBar';
+import NavBar from '../../components/navbar/NavBar';
 import Footer from '../../components/footer/footer';
 import ShopCart from '../../components/shopCart/shopCart';
 

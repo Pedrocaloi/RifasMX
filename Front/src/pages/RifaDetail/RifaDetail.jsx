@@ -8,7 +8,7 @@ import { getRifaDetail } from '../../store/state/actions/rifas';
 
 //-------------------- Components --------------------------
 import Footer from '../../components/footer/footer';
-import NavBar from '../../components/navbar/navBar';
+import NavBar from '../../components/navbar/NavBar';
 import RifaDetailCard from '../../components/rifaDetailCard/RifaDetailCard';
 
 const RifaDetail = () => {
