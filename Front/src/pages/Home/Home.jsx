@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 
 //-------------------- Components --------------------------
 import Footer from '../../components/footer/footer';
-import NavBar from '../../components/navbar/navBar';
+import NavBar from '../../components/navbar/NavBar';
 import CurrentRifas from '../../components/currentRifas/CurrentRifas';
 
 ////////////////////////
