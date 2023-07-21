@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { Rifa, Numero, User } = require('../db');
+const { mercadopago } = require('../utils/mercadoPago');
 const { spawn } = require('child_process');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
@@ -65,35 +66,77 @@ const checkRifas = async (req, res) => {
  }
 };
 
-const buyRifa = async (req, res) => {
+const buyRifas = async (req, res) => {
  try {
-  const { rifaId, number, userId } = req.body;
-  const rifa = await Rifa.findByPk(rifaId, {
+  const { cartItems } = req.body;
+  console.log(cartItems);
+
+  const rifas = await Rifa.findAll({
+   where: { id: cartItems.map((item) => item.rifaId) },
    include: { model: Numero, as: 'numeros', include: User },
   });
 
-  const selectedNumber = rifa.numeros.find((n) => n.number === number);
+  const itemObjects = [];
 
-  if (selectedNumber && selectedNumber.available) {
-   selectedNumber.available = false;
-   selectedNumber.userId = userId;
+  for (let i = 0; i < cartItems.length; i++) {
+   const cartItem = cartItems[i];
+   const { rifaId, number, userId } = cartItem;
+   const rifa = rifas.find((r) => r.id === rifaId);
 
-   try {
-    await selectedNumber.save(); // Guardar los cambios en la instancia de Número
-   } catch (err) {
-    console.log(err.message);
+   const selectedNumber = rifa.numeros.find((n) => n.number === number);
+
+   if (selectedNumber && selectedNumber.available) {
+    const itemObject = {
+     title: rifa.product,
+     unit_price: rifa.numbersPrice,
+     currency_id: 'MXN',
+     quantity: 1,
+    };
+
+    itemObjects.push(itemObject);
+   } else {
+    res
+     .status(409)
+     .send(`El número ${number} de la rifa ${rifa.product} ya está comprado`);
+    return;
    }
-
-   // Asociar el número comprado con el usuario correspondiente
-   const user = await User.findByPk(userId);
-   await selectedNumber.setUser(user);
-
-   res.send({ rifa, userId }); // El número se compró exitosamente
-  } else {
-   res
-    .status(409)
-    .send(`El número ${number} de la rifa ${rifa.product} ya está comprado`); // El número ya está comprado o no existe
   }
+
+  const operation = await mercadopago.preferences.create({
+   items: itemObjects,
+   back_urls: {
+    // aca van rutas de front
+
+    success: 'http://localhost:4000/rifas/buyRifas/success',
+    pending: 'http://localhost:4000/rifas/buyRifas/pending',
+    failure: 'http://localhost:4000/rifas/buyRifas/failure',
+   },
+   notification_url:
+    // hay que loggearse para que ande en la pag de nrok
+    'https://d83d-2803-9800-b444-813b-b8cb-92e2-7662-9ecf.sa.ngrok.io/rifas/buyRifas/webhook',
+  });
+
+  for (let i = 0; i < cartItems.length; i++) {
+   const cartItem = cartItems[i];
+   const { rifaId, number, userId } = cartItem;
+   const rifa = rifas.find((r) => r.id === rifaId);
+
+   const selectedNumber = rifa.numeros.find((n) => n.number === number);
+
+   if (selectedNumber && selectedNumber.available) {
+    selectedNumber.available = false;
+    selectedNumber.userId = userId;
+
+    // Guardar los cambios en la instancia de Número
+    await selectedNumber.save();
+
+    const user = await User.findByPk(userId);
+    // Asociar el número comprado con el usuario correspondiente
+    await selectedNumber.setUser(user);
+   }
+  }
+  console.log(operation);
+  res.status(200).json(operation);
  } catch (err) {
   res.status(500).json({ 'Error en el servidor: ': err.message });
  }
@@ -110,9 +153,26 @@ const rifaDetail = async (req, res) => {
  }
 };
 
+const receiveWebhook = async (req, res) => {
+ const payment = req.query;
+
+ try {
+  if (payment.type === 'payment') {
+   console.log(req.query, ' req queryyyyy');
+   const data = await mercadopago.payment.findById(payment['data.id']);
+   console.log('dataa', data);
+  }
+  res.sendStatus(204);
+ } catch (err) {
+  console.log(err);
+  return res.sendStatus(500).json({ error: err.message });
+ }
+};
+
 module.exports = {
  createRifa,
  checkRifas,
  rifaDetail,
- buyRifa,
+ buyRifas,
+ receiveWebhook,
 };

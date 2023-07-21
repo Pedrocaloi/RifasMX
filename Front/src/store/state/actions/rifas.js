@@ -85,24 +85,23 @@ export const buyRifas = (cartItems) => async (dispatch) => {
   const userData = JSON.parse(sessionStorage.getItem('userData'));
   const token = userData.token;
 
-  for (const cartItem of cartItems) {
-   const { rifaId, number, userId } = cartItem;
-
-   await axios.put(
-    `${svHost}/rifas/buyRifa`,
-    { rifaId, number, userId },
-    {
-     headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-     },
+  const response = await axios.put(
+   `${svHost}/rifas/buyRifas`,
+   { cartItems },
+   {
+    headers: {
+     Authorization: `Bearer ${token}`,
+     Accept: 'application/json',
+     'Content-Type': 'application/json',
     },
-   );
-  }
+   },
+  );
+
+  // Abrir el init_point en una nueva pestaña
+  const { init_point } = response.data.body;
+  window.open(init_point, '_blank');
 
   dispatch(clearCart());
-
   // dispatch(setRifaDetail(/* Pass the appropriate data here */));
  } catch (err) {
   console.log(err.message);

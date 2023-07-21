@@ -6,8 +6,8 @@ const {
  checkRifas,
  createRifa,
  rifaDetail,
- updateRifa,
- buyRifa,
+ buyRifas,
+ receiveWebhook,
 } = require('../controllers/rifas.controller');
 
 const router = Router();
@@ -24,7 +24,19 @@ router.post('/createRifa', createRifa);
 
 // router.post('/deleteRifa', isUserLoggedInAdmin, deleteRifa);
 
-router.put('/buyRifa', isUserLoggedIn, buyRifa);
+//-------------------- Number payment routes --------------------------
+
+// router.put('/buyRifas', isUserLoggedIn, buyRifas);
+
+router.put('/buyRifas', buyRifas);
+
+router.get('/buyRifas/success', (req, res) => res.send('creating order'));
+
+router.get('/buyRifas/pending', (req, res) => res.send('pending order'));
+
+router.get('/buyRifas/failure', (req, res) => res.send('order failure'));
+
+router.get('/buyRifas/webhook', receiveWebhook);
 
 ///////////////////////////////////////////////
 

@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
     type: DataTypes.UUID,
     allowNull: true,
    },
+   operationId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+   },
   },
   {
    timestamps: false,
